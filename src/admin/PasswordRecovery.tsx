@@ -82,9 +82,11 @@ export default function PasswordRecovery({
   }
 
   async function returnToAdmin() {
-    await supabase.auth.signOut()
-    window.location.href =
-      `${window.location.origin}/#admin`
+    try {
+      await supabase.auth.signOut()
+    } finally {
+      window.location.replace(`${window.location.origin}/#admin`)
+    }
   }
 
   if (!recovering) {
