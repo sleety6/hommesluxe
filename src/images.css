@@ -1,0 +1,171 @@
+.editorial-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-image {
+  object-position: 62% 27%;
+}
+
+.about-image {
+  height: 500px;
+  object-position: 50% 20%;
+}
+
+@media (max-width: 650px) {
+  .about-image { height: 400px; }
+  .hero-image { object-position: 59% 23%; }
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 13px;
+  margin-top: 32px;
+}
+
+.contact-details a {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(37, 39, 31, .22);
+  font-size: 13px;
+}
+
+.contact-details a:hover {
+  color: #8b6b3f;
+  border-color: currentColor;
+}
+
+.product-details {
+  width: 100%;
+  margin: 22px 0;
+  border-top: 1px solid rgba(37, 39, 31, 0.18);
+}
+
+.product-details div {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 18px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(37, 39, 31, 0.18);
+}
+
+.product-details span {
+  color: #9b7d50;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.product-details strong {
+  color: #44463d;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+@media (max-width: 650px) {
+  .product-details div {
+    grid-template-columns: 75px 1fr;
+  }
+}
+
+.card-price {
+  display: block;
+  margin-top: 10px;
+  color: #8b6b3f;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.floating-whatsapp {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  color: white;
+  background: #1f3a2b;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.floating-whatsapp:hover {
+  background: #2c513c;
+  transform: translateY(-3px);
+}
+
+@media (max-width: 650px) {
+  .floating-whatsapp {
+    right: 15px;
+    bottom: 15px;
+    padding: 13px;
+  }
+
+  .floating-whatsapp span {
+    display: none;
+  }
+}
+
+.product-grid {
+  align-items: start;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  width: 100%;
+  height: 100%;
+}
+
+.product-frame {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+}
+
+.product-frame .product-image,
+.product-frame .image-slot {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: cover;
+}
+
+.product-meta {
+  width: 100%;
+  min-height: 150px;
+}
+
+@media (max-width: 650px) {
+  .product-grid {
+    align-items: start;
+  }
+
+  .product-card {
+    justify-content: flex-start;
+  }
+
+  .product-meta {
+    min-height: 165px;
+  }
+}
