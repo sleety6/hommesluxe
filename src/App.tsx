@@ -127,7 +127,32 @@ export default function App() {
         <strong className="card-price">{item.price}</strong></div></button>)}</div></section>
       }
 
-      {page === 'about' && <><section className="about-hero section-pad"><div><p className="eyebrow">OUR STORY</p><h1>Dress like<br /><em>you mean it.</em></h1><p>HOMMESLUXE is a Ghanaian fashion brand with a taste for memorable moments. This starter site gives the brand an editorial home; add the founder’s real story and verified production details here.</p></div><img className="editorial-image about-image" src="/images/look-01.jpg" alt="Man wearing an embroidered navy ceremonial outfit" /></section><section className="about-detail section-pad"><p className="eyebrow">A POINT OF VIEW</p><h2>Rooted in Accra.<br />Made for wherever<br /><em>life takes you.</em></h2><div><p>We believe getting dressed is part of the occasion. The anticipation. The arrival. The photographs you return to years later.</p><p>Use this space to tell the true story behind HOMMESLUXE: the people, process and craft that make it yours.</p><button className="text-link dark" onClick={() => go('contact')}>Start a conversation <ArrowUpRight size={19} /></button></div></section></>}
+      {page === 'about' && <><section className="about-hero section-pad"><div><p className="eyebrow">OUR STORY</p><h1>Dress like<br /><em>you mean it.</em></h1><p>
+        Some moments stay with you long after the day is over.
+        At HOMMESLUXE, we believe what you wear should be part
+        of that memory. Rooted in Accra, our vision brings
+        Ghanaian occasionwear into a modern wardrobe—expressive,
+        considered and personal. From a wedding celebration
+        to an evening you have been looking forward to, we
+        want you to arrive feeling entirely yourself.
+      </p></div><img className="editorial-image about-image" src="/images/look-01.jpg" alt="Man wearing an embroidered navy ceremonial outfit" /></section><section className="about-detail section-pad"><p className="eyebrow">A POINT OF VIEW</p><h2>Rooted in Accra.<br />Made for wherever<br /><em>life takes you.</em></h2><div><p>
+        Our inspiration lives in the way we celebrate:
+        the colour, the gathering of family, the pride in
+        showing up for one another. We carry that spirit
+        into our approach to dressing, where traditional
+        influences meet clean silhouettes and a personal
+        sense of style.
+      </p>
+
+      <p>
+        For us, a memorable outfit begins with the person
+        wearing it. Your occasion, your preferred colours
+        and the way you want to feel all belong in the
+        conversation. Whether your style is quiet and
+        understated or bold and ceremonial, our ambition
+        is the same: a look you feel proud to wear,
+        and a memory you will be glad to revisit.
+      </p><button className="text-link dark" onClick={() => go('contact')}>Start a conversation <ArrowUpRight size={19} /></button></div></section></>}
 
       {page === 'contact' && <section className="contact-page section-pad"><div><p className="eyebrow">CONNECT WITH US</p><h1>Tell us about<br /><em>your moment.</em></h1><p>Questions about a piece, bespoke tailoring or styling for a special occasion? We’d love to hear from you.</p><div className="contact-details"><a href="mailto:hommesluxe@gmail.com"><Mail size={18} /> hommesluxe@gmail.com</a><a href="tel:+233597431095"><Phone size={18} /> 059 743 1095</a><a href="tel:+233541894105"><Phone size={18} /> 054 189 4105</a><a href="https://maps.google.com/?q=Orgle+Road+Accra+Ghana" target="_blank" rel="noreferrer"><MapPin size={18} /> Orgle Road, Accra, Ghana</a><a href="https://www.instagram.com/hommesluxe/" target="_blank" rel="noreferrer"><Instagram size={18} /> @hommesluxe</a></div></div><div className="contact-panel"><span className="panel-num">01 / WHATSAPP</span><h2>Start with<br />a hello.</h2><p>Share the occasion, date, piece you like and any questions. We’ll take it from there.</p><a className="outline-button" href="https://wa.me/message/M3DWAXRFX2Q6K1" target="_blank" rel="noreferrer">Chat on WhatsApp <MessageCircle size={18} /></a><span className="contact-deco" aria-hidden="true">✦</span></div></section>}
     </main>
