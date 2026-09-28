@@ -3,6 +3,7 @@ import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Instagram, Mail, MapPin
 import { type Product } from './data'
 import { useProducts } from './hooks/useProducts'
 import AdminPage from './admin/AdminPage'
+import Shop, { useBag } from './Shop'
 
 type Page =
   | 'home'
@@ -10,12 +11,15 @@ type Page =
   | 'about'
   | 'contact'
   | 'admin'
+  | 'bag'
+
 const pages: Page[] = [
   'home',
   'collections',
   'about',
   'contact',
   'admin',
+  'bag',
 ]
 const nav: { label: string; page: Page }[] = [
   { label: 'Home', page: 'home' }, { label: 'Collections', page: 'collections' },
@@ -36,7 +40,13 @@ function ProductImage({ product, className = '' }: { product: Product; className
 }
 
 export default function App() {
-  const { products } = useProducts()
+  const {
+    products,
+    loading,
+    catalogueReady,
+  } = useProducts()
+
+  const bag = useBag()
 
   const [page, setPage] = useState<Page>(() => {
     const hash = location.hash.slice(1) as Page
@@ -78,12 +88,27 @@ export default function App() {
     <header className="site-header">
       <a className="wordmark" href="#home" aria-label="HOMMESLUXE home">HOMMES<span>LUXE</span><small>ACCRA · GHANA</small></a>
       <nav className="desktop-nav" aria-label="Main navigation">{nav.map(item => <a key={item.page} className={page === item.page ? 'active' : ''} href={`#${item.page}`}>{item.label}</a>)}</nav>
-      <button className="header-cta" onClick={() => go('contact')}>Enquire <ArrowUpRight size={15} /></button>
+      <button
+        className="header-cta bag-header"
+        onClick={() => go('bag')}
+      >
+        Bag ({bag.count})
+        <ArrowUpRight size={15} />
+      </button>
       <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>{menuOpen ? <X /> : <Menu />}</button>
     </header>
     {menuOpen && <nav className="mobile-nav" aria-label="Mobile navigation">{nav.map(item => <a key={item.page} href={`#${item.page}`} onClick={() => setMenuOpen(false)}>{item.label}<ArrowUpRight size={18} /></a>)}</nav>}
 
     <main id="main">
+      {page === 'bag' && (
+        <Shop
+          bag={bag}
+          products={products}
+          loading={loading}
+          catalogueReady={catalogueReady}
+        />
+      )}
+
       {page === 'home' && <>
         <section className="hero">
           <div className="hero-copy reveal"><p className="eyebrow"><span className="line" /> THE ART OF ARRIVING</p><h1>For every<br /><em>remarkable</em><br />moment.</h1><p className="hero-text">Considered fashion for celebrations, ceremonies and every entrance worth remembering.</p><button className="text-link" onClick={() => go('collections')}>Explore the collection <ArrowUpRight size={19} /></button><div className="hero-index">01 <span>/</span> 03 &nbsp;—&nbsp; AN INTRODUCTION</div></div>
@@ -138,6 +163,29 @@ export default function App() {
     <span>Lead time</span>
     <strong>{selected.leadTime}</strong>
   </div>
-</div><a className="outline-button" href="https://wa.me/message/M3DWAXRFX2Q6K1" target="_blank" rel="noreferrer">Enquire on WhatsApp <MessageCircle size={18} /></a><button className="modal-back" onClick={() => setSelected(null)}><ArrowLeft size={17} /> Back to collection</button></div></div></div>}
+</div><button
+        className="shop-primary shop-add"
+        onClick={() => {
+        bag.add(selected.id)
+        setSelected(null)
+      }}
+      >
+        Add to bag →
+      </button>
+
+      <p className="shop-add-note">
+        Starting price. Final quote and measurements
+        confirmed by the studio.
+      </p>
+
+      <a
+        className="outline-button"
+        href="https://wa.me/message/M3DWAXRFX2Q6K1"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Enquire on WhatsApp
+        <MessageCircle size={18} />
+      </a><button className="modal-back" onClick={() => setSelected(null)}><ArrowLeft size={17} /> Back to collection</button></div></div></div>}
   </>
 }

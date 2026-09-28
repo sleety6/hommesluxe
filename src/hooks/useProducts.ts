@@ -1,7 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
 import {
   products as starterProducts,
   type Product,
@@ -28,7 +25,7 @@ function formatPrice(price: number) {
   return `From ${new Intl.NumberFormat('en-GH', {
     style: 'currency',
     currency: 'GHS',
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(price)}`
 }
 
@@ -38,13 +35,19 @@ export function useProducts() {
 
   const [loading, setLoading] = useState(true)
 
+  const [catalogueReady, setCatalogueReady] =
+    useState(false)
+
   useEffect(() => {
     loadProducts()
   }, [])
 
   async function loadProducts() {
-    const { data, error } =
-      await supabase
+    setLoading(true)
+    setCatalogueReady(false)
+
+    try {
+      const { data, error } = await supabase
         .from('products')
         .select(
           `
@@ -68,35 +71,46 @@ export function useProducts() {
           ascending: true,
         })
 
-    if (!error && data) {
-      const databaseProducts =
-        (data as DatabaseProduct[]).map(
-          (product) => ({
-            id: String(product.id).padStart(2, '0'),
-            name: product.name,
-            category: product.category,
-            note: product.note,
-            description: product.description,
-            palette: 'sand',
-            image: product.image_url,
-            position: product.image_position,
-            price: formatPrice(product.price),
-            fit: product.fit,
-            colours: product.colours,
-            leadTime: product.lead_time,
-            featured: product.is_featured,
-          })
-        )
+      if (error) {
+        throw error
+      }
 
-      setProducts(databaseProducts)
+      if (data) {
+        const databaseProducts: Product[] = (
+          data as DatabaseProduct[]
+        ).map((product) => ({
+          id: String(product.id).padStart(2, '0'),
+          name: product.name,
+          category: product.category,
+          note: product.note,
+          description: product.description,
+          palette: 'sand',
+          image: product.image_url,
+          position: product.image_position,
+          price: formatPrice(Number(product.price)),
+          startingPrice: Number(product.price),
+          fit: product.fit,
+          colours: product.colours,
+          leadTime: product.lead_time,
+          featured: product.is_featured,
+        }))
+
+        setProducts(databaseProducts)
+        setCatalogueReady(true)
+      }
+    } catch {
+      // Browsing remains available, but order requests
+      // require a successfully loaded live catalogue.
+      setCatalogueReady(false)
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   return {
     products,
     loading,
+    catalogueReady,
     refreshProducts: loadProducts,
   }
 }

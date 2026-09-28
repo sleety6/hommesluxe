@@ -7,6 +7,7 @@ export type Product = {
   palette: string
   image: string
   position?: string
+  startingPrice?: number
   price: string
   fit: string
   colours: string
