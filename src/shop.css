@@ -367,3 +367,214 @@
     animation: none;
   }
 }
+
+/* Mobile shopping bag improvements */
+@media (max-width: 650px) {
+  .shop-page.section-pad {
+    padding: 36px 18px 64px;
+  }
+
+  .shop-page > .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    margin-bottom: 12px;
+  }
+
+  .shop-page h1 {
+    font-size: clamp(36px, 10vw, 48px);
+    line-height: 1.1;
+    margin: 0 0 18px;
+  }
+
+  .shop-page > p:not(.eyebrow) {
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .shop-page .shop-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    margin: 24px 0 0;
+  }
+
+  .shop-layout > div {
+    min-width: 0;
+    display: grid;
+    gap: 14px;
+  }
+
+  /* Each product gets its own compact card */
+  .shop-page .bag-line {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    align-items: start;
+    gap: 14px;
+
+    padding: 16px;
+    border: 1px solid #e1dbcf;
+    border-radius: 12px;
+    background: #fffdf8;
+  }
+
+  .shop-page .bag-line img {
+    width: 76px;
+    height: 102px;
+    object-fit: cover;
+    border-radius: 7px;
+  }
+
+  .bag-line > div {
+    min-width: 0;
+  }
+
+  .bag-line > div:only-child {
+    grid-column: 1 / -1;
+  }
+
+  .shop-page .bag-line h2 {
+    font-size: 21px;
+    line-height: 1.2;
+    margin: 0 0 8px;
+    overflow-wrap: anywhere;
+  }
+
+  .shop-page .bag-line p {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+
+  .shop-page .bag-line strong {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #252b22;
+  }
+
+  /* Keep quantity controls neatly aligned */
+  .shop-page .bag-controls {
+    display: grid;
+    grid-template-columns: 44px 28px 44px;
+    align-items: center;
+    justify-content: start;
+    gap: 4px;
+    margin-top: 14px;
+  }
+
+  .shop-page .bag-controls button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid #d3cebf;
+    border-radius: 7px;
+    background: #f7f5ef;
+    color: #252b22;
+    font-size: 20px;
+  }
+
+  .shop-page .bag-controls > span {
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .shop-page .bag-controls .bag-remove {
+    grid-column: 1 / -1;
+    justify-self: start;
+    width: auto;
+    min-height: 44px;
+    height: auto;
+    border: 0;
+    background: transparent;
+    color: #746b5b;
+    font-size: 12px;
+    text-underline-offset: 3px;
+  }
+
+  /* Order summary */
+  .shop-page .shop-summary {
+    min-width: 0;
+    padding: 22px 18px;
+    border: 1px solid #ddd5c4;
+    border-radius: 12px;
+    background: #eee9dd;
+  }
+
+  .shop-summary > .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    margin-bottom: 18px;
+  }
+
+  .shop-page .shop-total {
+    gap: 8px 16px;
+    padding: 18px 0;
+  }
+
+  .shop-total > span {
+    font-size: 13px;
+  }
+
+  .shop-total > strong {
+    font-size: 19px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .shop-summary > p:not(.eyebrow) {
+    font-size: 12px;
+    line-height: 1.7;
+    margin: 18px 0;
+  }
+
+  .shop-summary .shop-primary,
+  .shop-empty .shop-primary {
+    width: 100%;
+    min-height: 52px;
+    border-radius: 8px;
+    padding: 15px 12px;
+    font-size: 13px;
+  }
+
+  .shop-summary .shop-continue {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    margin-top: 12px;
+    text-underline-offset: 4px;
+  }
+
+  .shop-empty {
+    padding: 24px 0;
+  }
+
+  .shop-empty h2 {
+    font: 400 28px / 1.25 'Playfair Display', serif;
+  }
+
+  /* Make the header bag button easier to tap */
+  .site-header .bag-header {
+    min-height: 44px;
+    padding: 8px 10px;
+    gap: 5px;
+    border: 1px solid #d9d2c3;
+    border-radius: 7px;
+    font-size: 11px;
+    letter-spacing: 0;
+    flex-shrink: 0;
+  }
+
+  .site-header .bag-header svg {
+    display: none;
+  }
+
+  /* Comfortable text entry in the checkout popup */
+  .checkout-dialog .checkout-fields input,
+  .checkout-dialog .checkout-fields select,
+  .checkout-dialog .checkout-fields textarea {
+    font-size: 16px;
+  }
+}
