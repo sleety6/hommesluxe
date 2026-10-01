@@ -16,8 +16,21 @@ import AdminProducts, {
   type AdminProduct,
 } from './AdminProducts'
 import ProductForm from './ProductForm'
+import AdminOverview from './AdminOverview'
+import AdminOrders from './AdminOrders'
+import OrderNotifications from './OrderNotifications'
 
 export default function AdminPage() {
+  const [newOrderCount, setNewOrderCount] =
+    useState(0)
+
+  const [ordersVersion, setOrdersVersion] =
+    useState(0)
+
+  const [activeTab, setActiveTab] =
+    useState<'overview' | 'products' | 'orders'>(
+      'overview'
+    )
   const [session, setSession] = useState<Session | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
   const [email, setEmail] = useState(
@@ -176,34 +189,108 @@ export default function AdminPage() {
       </header>
 
       <section className="admin-dashboard-content">
-        <div className="admin-title-row">
-          <div>
-            <p className="admin-eyebrow">
-              PRODUCT MANAGEMENT
-            </p>
-
-            <h1>Catalogue</h1>
-          </div>
+        <OrderNotifications
+          key={session.user.id}
+          userId={session.user.id}
+          onCount={setNewOrderCount}
+          onOpenOrders={() => {
+            setActiveTab('orders')
+            setOrdersVersion((current) => current + 1)
+          }}
+        />
+        <div
+          className="admin-view-switch"
+          role="group"
+          aria-label="Dashboard view"
+        > 
+          <button
+            type="button"
+            aria-pressed={activeTab === 'overview'}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview
+          </button>
 
           <button
-            className="admin-add-button"
-            onClick={() => {
-                setSelectedProduct(null)
-                setShowProductForm(true)
-            }}
+            type="button"
+            aria-pressed={activeTab === 'orders'}
+            onClick={() => setActiveTab('orders')}
           >
-            <Plus size={18} />
-            Add product
+            Orders
+
+            {newOrderCount > 0 && (
+              <span
+                className="order-alert-count"
+                aria-label={`${newOrderCount} orders with new activity`}
+              >
+                {newOrderCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            aria-pressed={activeTab === 'products'}
+            onClick={() => setActiveTab('products')}
+          >
+            Products
           </button>
         </div>
 
-        <AdminProducts
-            key={productsVersion}
-            onEdit={(product) => {
+        {activeTab === 'overview' ? (
+          <AdminOverview
+            key={session.user.id}
+            onOrders={() => setActiveTab('orders')}
+          />
+        ) : activeTab === 'orders' ? (
+          <>
+            <div className="admin-title-row">
+              <div>
+                <p className="admin-eyebrow">
+                  ORDER MANAGEMENT
+                </p>
+
+                <h1>Orders</h1>
+              </div>
+            </div>
+
+            <AdminOrders
+              key={`${session.user.id}-${ordersVersion}`}
+              userId={session.user.id}
+            />
+          </>
+        ) : (
+          <>
+            <div className="admin-title-row">
+              <div>
+                <p className="admin-eyebrow">
+                  PRODUCT MANAGEMENT
+                </p>
+
+                <h1>Catalogue</h1>
+              </div>
+
+              <button
+                className="admin-add-button"
+                onClick={() => {
+                  setSelectedProduct(null)
+                  setShowProductForm(true)
+                }}
+              >
+                <Plus size={18} />
+                Add product
+              </button>
+            </div>
+
+            <AdminProducts
+              key={productsVersion}
+              onEdit={(product) => {
                 setSelectedProduct(product)
                 setShowProductForm(true)
-            }}
-        />
+              }}
+            />
+          </>
+        )}
       </section>
 
       {showProductForm && (

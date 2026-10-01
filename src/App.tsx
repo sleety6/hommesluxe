@@ -4,6 +4,7 @@ import { type Product } from './data'
 import { useProducts } from './hooks/useProducts'
 import AdminPage from './admin/AdminPage'
 import Shop, { useBag } from './Shop'
+import { PaymentStatus } from './PaystackPayment'
 
 type Page =
   | 'home'
@@ -100,6 +101,7 @@ export default function App() {
     {menuOpen && <nav className="mobile-nav" aria-label="Mobile navigation">{nav.map(item => <a key={item.page} href={`#${item.page}`} onClick={() => setMenuOpen(false)}>{item.label}<ArrowUpRight size={18} /></a>)}</nav>}
 
     <main id="main">
+      <PaymentStatus />
       {page === 'bag' && (
         <Shop
           bag={bag}

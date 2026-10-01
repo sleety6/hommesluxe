@@ -578,3 +578,162 @@
     font-size: 16px;
   }
 }
+
+/* Measurements */
+
+.measurements-control {
+  margin-top: 16px;
+}
+
+.measurements-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 14px;
+
+  border: 1px solid #b9a785;
+  border-radius: 7px;
+
+  background: #eee9dd;
+  color: #343a2f;
+
+  font: inherit;
+  font-size: 12px;
+  text-align: center;
+}
+
+.measurements-button:hover {
+  background: #e3dbc9;
+}
+
+.measurements-control > small {
+  display: block;
+  margin-top: 7px;
+
+  color: #726d60;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.measurement-outfit {
+  min-width: 0;
+  margin: 24px 0;
+  padding: 20px;
+
+  border: 1px solid #d9d2c3;
+  border-radius: 10px;
+}
+
+.measurement-outfit legend {
+  padding: 0 8px;
+
+  color: #79603a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.measurements-dialog .measurement-error {
+  padding: 12px;
+  border: 1px solid #d9b4a9;
+  border-radius: 6px;
+
+  background: #f8ece7;
+  color: #8b3428;
+}
+
+@media (max-width: 650px) {
+  .measurements-button {
+    width: 100%;
+    padding: 10px 8px;
+  }
+
+  .measurement-outfit {
+    padding: 16px 12px;
+  }
+
+  .measurements-dialog .checkout-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Paystack demo checkout */
+
+.paystack-actions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #ccc4b4;
+}
+
+.paystack-actions .payment-demo {
+  padding: 12px 14px;
+  border: 1px solid #dac897;
+  border-radius: 7px;
+  background: #fff4d8;
+  color: #624b1d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.paystack-actions > p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.paystack-actions [role="alert"] {
+  padding: 12px;
+  border-radius: 6px;
+  background: #f8e9e4;
+  color: #8b3428;
+}
+
+.paystack-actions .shop-primary {
+  width: 100%;
+  border-radius: 7px;
+}
+
+.payment-status {
+  margin: 24px auto;
+  padding: 28px;
+  width: min(850px, calc(100% - 36px));
+  border: 1px solid #c8d3bc;
+  border-radius: 12px;
+  background: #edf2e7;
+}
+
+.payment-status h2 {
+  font: 400 30px / 1.2 'Playfair Display', serif;
+}
+
+.payment-status p {
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.payment-status code {
+  overflow-wrap: anywhere;
+}
+
+.payment-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.payment-status .shop-continue {
+  border: 0;
+  padding: 10px 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 650px) {
+  .payment-status {
+    padding: 22px 18px;
+  }
+
+  .payment-status-actions .shop-primary {
+    width: 100%;
+  }
+}

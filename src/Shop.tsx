@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Product } from './data'
 import './shop.css'
+import Measurements, {
+  describeMeasurements,
+  type MeasurementsByProduct,
+  type OutfitMeasurements,
+} from './Measurements'
+import PaystackPayment from './PaystackPayment'
 
 type BagLine = {
   id: string
@@ -17,6 +23,19 @@ function money(amount: number) {
 }
 
 export function useBag() {
+  const [measurements, setMeasurements] =
+    useState<MeasurementsByProduct>({})
+
+  function saveMeasurements(
+    id: string,
+    records: OutfitMeasurements[]
+  ) {
+    setMeasurements((current) => ({
+      ...current,
+      [id]: records,
+    }))
+  }
+
   const [lines, setLines] = useState<BagLine[]>(() => {
     try {
       const saved: unknown = JSON.parse(
@@ -84,6 +103,18 @@ export function useBag() {
       return
     }
 
+    setMeasurements((current) => {
+      const next = { ...current }
+
+      if (quantity === 0) {
+        delete next[id]
+      } else if (next[id]) {
+        next[id] = next[id].slice(0, quantity)
+      }
+
+      return next
+    })
+
     setLines((current) =>
       quantity === 0
         ? current.filter((item) => item.id !== id)
@@ -100,7 +131,14 @@ export function useBag() {
     0
   )
 
-  return { lines, add, update, count }
+  return {
+    lines,
+    add,
+    update,
+    count,
+    measurements,
+    saveMeasurements,
+  }
 }
 
 type ShopProps = {
@@ -110,9 +148,6 @@ type ShopProps = {
   catalogueReady: boolean
 }
 
-// Confirm this is the owner's WhatsApp order number.
-// Use international digits without "+" or spaces.
-const WHATSAPP_NUMBER = '233597431095'
 
 export default function Shop({
   bag,
@@ -122,6 +157,7 @@ export default function Shop({
 }: ShopProps) {
   const [checkout, setCheckout] = useState(false)
   const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [delivery, setDelivery] = useState(
     'Collection in Accra'
@@ -160,7 +196,7 @@ export default function Shop({
 
   useEffect(() => {
     setMessage('')
-  }, [bag.lines, products])
+  }, [bag.lines, bag.measurements, products])
 
   const items = bag.lines.map((line) => ({
     ...line,
@@ -256,6 +292,17 @@ export default function Shop({
                           'Remove this piece to continue'}
                       </strong>
 
+                      {product && (
+                        <Measurements
+                          productName={product.name}
+                          quantity={quantity}
+                          value={bag.measurements[id]}
+                          onSave={(records) =>
+                            bag.saveMeasurements(id, records)
+                          }
+                        />
+                      )}
+
                       <div className="bag-controls">
                         <button
                           type="button"
@@ -321,7 +368,6 @@ export default function Shop({
               <p>
                 Delivery and any applicable charges
                 will be confirmed before payment.
-                No payment is taken on this website.
               </p>
 
               {loading ? (
@@ -346,7 +392,7 @@ export default function Shop({
                   className="shop-primary"
                   onClick={() => setCheckout(true)}
                 >
-                  Continue to order request →
+                  Continue to checkout →
                 </button>
               )}
 
@@ -411,16 +457,18 @@ export default function Shop({
                   }
 
                 const orderMessage = [
-                  'Hello HOMMESLUXE, I would like to request an order:',
+                  'HOMMESLUXE — Order summary',
                   '',
-                  ...items.map(
-                    (item) =>
-                      `${item.quantity} × ${
-                        item.product!.name
-                      } (${item.id}) — ${
-                        item.product!.price
-                      } each`
+                  ...items.map((item) =>
+                    [
+                      `${item.quantity} × ${item.product!.name} (${item.id}) — ${item.product!.price} each`,
+                      describeMeasurements(
+                        bag.measurements[item.id],
+                        item.quantity
+                      ),
+                    ].join('\n')
                   ),
+
                   '',
                   `Estimated subtotal: ${money(total)}`,
                   `Name: ${name.trim()}`,
@@ -433,7 +481,7 @@ export default function Shop({
                     notes.trim() || 'To discuss'
                   }`,
                   '',
-                  'Please confirm measurements, availability, final total and payment arrangements.',
+                  'Delivery charges are excluded from this total.',
                 ]
                   .filter(Boolean)
                   .join('\n')
@@ -441,18 +489,29 @@ export default function Shop({
                 setMessage(orderMessage)
               }}
             >
-              <p className="eyebrow">YOUR ORDER REQUEST</p>
+              <p className="eyebrow">CHECKOUT</p>
 
               <h2 id="checkout-title">Make it yours.</h2>
 
               <p>
-                Share your details, then review your
-                request before opening WhatsApp. The
-                studio confirms the order directly
-                with you.
+                Enter your contact and delivery details,
+                then review your order and continue to payment.
               </p>
 
               <div className="checkout-fields">
+                <label>
+                  Email address
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    required
+                    maxLength={254}
+                    value={email}
+                    onChange={(event) =>
+                      setEmail(event.target.value)
+                    }
+                  />
+                </label>
                 <label>
                   Full name
                   <input
@@ -467,7 +526,7 @@ export default function Shop({
                 </label>
 
                 <label>
-                  Phone / WhatsApp
+                  Phone number
                   <input
                     type="tel"
                     autoComplete="tel"
@@ -529,11 +588,9 @@ export default function Shop({
               </div>
 
               <p>
-                Your details are included in the
-                WhatsApp message only when you
-                choose to send it. An order is
-                confirmed after the studio accepts
-                it.
+                When you continue to payment, your order,
+                contact details and outfit measurements will
+                be saved with your order.
               </p>
 
               <button
@@ -541,31 +598,44 @@ export default function Shop({
                 className="shop-primary"
                 disabled={!canRequest}
               >
-                Review request
+                Review order
               </button>
 
               {message && canRequest && (
                 <div className="request-preview">
-                  <h3>Review your request</h3>
+                  <h3>Review your order</h3>
 
                   <pre>{message}</pre>
 
-                  <a
-                    className="shop-primary"
-                    href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-                      message
-                    )}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Open WhatsApp to send request ↗
-                  </a>
-
-                  <p>
-                    Opening WhatsApp does not send
-                    the message automatically. Your
-                    bag stays saved here.
-                  </p>
+                  <PaystackPayment
+                    customer={{
+                      name: name.trim(),
+                      email: email.trim(),
+                      phone: phone.trim(),
+                    }}
+                    fulfilment={
+                      delivery === 'Delivery'
+                        ? 'delivery'
+                        : 'collection'
+                    }
+                    address={address.trim()}
+                    notes={notes.trim()}
+                    items={items.map((item) => ({
+                      id: item.id,
+                      quantity: item.quantity,
+                      measurements:
+                        bag.measurements[item.id] || [],
+                    }))}
+                    amountPesewas={items.reduce(
+                      (sum, item) =>
+                        sum +
+                        Math.round(
+                          (item.product?.startingPrice || 0) * 100
+                        ) *
+                          item.quantity,
+                      0
+                    )}
+                  />
                 </div>
               )}
             </form>
