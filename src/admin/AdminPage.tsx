@@ -190,7 +190,7 @@ export default function AdminPage() {
 
       <section className="admin-dashboard-content">
         <OrderNotifications
-          key={session.user.id}
+          key={`notifications-${session.user.id}`}
           userId={session.user.id}
           onCount={setNewOrderCount}
           onOpenOrders={() => {
@@ -239,7 +239,7 @@ export default function AdminPage() {
 
         {activeTab === 'overview' ? (
           <AdminOverview
-            key={session.user.id}
+            key={`overview-${session.user.id}`}
             onOrders={() => setActiveTab('orders')}
           />
         ) : activeTab === 'orders' ? (
