@@ -162,7 +162,6 @@ export default function PaystackPayment(props: Props) {
       </p>
 
       <p>
-        This demo uses the displayed starting prices.
         Delivery charges are excluded. Your order and
         measurements are saved before the payment page opens.
       </p>
@@ -233,7 +232,11 @@ function readPending(): PendingPayment | null {
   return { reference, url }
 }
 
-export function PaymentStatus() {
+export function PaymentStatus({
+  onPaid,
+}: {
+  onPaid: (reference: string) => void
+}) {
   const [payment, setPayment] = useState(readPending)
   const [attempt, setAttempt] = useState(0)
   const [status, setStatus] = useState('checking')
@@ -264,6 +267,10 @@ export function PaymentStatus() {
           )
         }
 
+        if (result.status === 'paid') {
+          onPaid(payment.reference)
+        }
+
         setStatus(result.status)
       })
       .catch((failure) => {
@@ -280,7 +287,7 @@ export function PaymentStatus() {
     return () => {
       active = false
     }
-  }, [payment, attempt])
+  }, [payment, attempt, onPaid])
 
   if (!payment) return null
 

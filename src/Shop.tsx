@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Product } from './data'
 import './shop.css'
 import Measurements, {
@@ -126,6 +126,48 @@ export function useBag() {
     )
   }
 
+  const clearedPayments = useRef(new Set<string>())
+
+  const clearAfterPayment = useCallback((reference: string) => {
+    if (clearedPayments.current.has(reference)) return
+
+    const storageKey = 'hommesluxe-cleared-payments'
+    let savedReferences: string[] = []
+
+    try {
+      const saved: unknown = JSON.parse(
+        localStorage.getItem(storageKey) || '[]'
+      )
+
+      if (Array.isArray(saved)) {
+        savedReferences = saved.filter(
+          (value): value is string => typeof value === 'string'
+        )
+      }
+    } catch {
+      // Continue using the in-memory record.
+    }
+
+    clearedPayments.current.add(reference)
+
+    // Revisiting an already confirmed payment must not
+    // clear a new shopping bag.
+    if (savedReferences.includes(reference)) return
+
+    try {
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify([...savedReferences, reference])
+      )
+      localStorage.setItem(STORAGE_KEY, '[]')
+    } catch {
+      // React state still updates if storage is unavailable.
+    }
+
+    setLines([])
+    setMeasurements({})
+  }, [])
+
   const count = lines.reduce(
     (total, item) => total + item.quantity,
     0
@@ -138,6 +180,7 @@ export function useBag() {
     count,
     measurements,
     saveMeasurements,
+    clearAfterPayment,
   }
 }
 

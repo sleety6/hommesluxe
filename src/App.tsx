@@ -101,7 +101,7 @@ export default function App() {
     {menuOpen && <nav className="mobile-nav" aria-label="Mobile navigation">{nav.map(item => <a key={item.page} href={`#${item.page}`} onClick={() => setMenuOpen(false)}>{item.label}<ArrowUpRight size={18} /></a>)}</nav>}
 
     <main id="main">
-      <PaymentStatus />
+      <PaymentStatus onPaid={bag.clearAfterPayment} />
       {page === 'bag' && (
         <Shop
           bag={bag}
