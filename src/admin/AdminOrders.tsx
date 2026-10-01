@@ -70,6 +70,7 @@ export default function AdminOrders({
   const [error, setError] = useState('')
   const [checking, setChecking] = useState('')
   const [notice, setNotice] = useState('')
+  const [noticeOrderId, setNoticeOrderId] = useState('')
 
   const requestId = useRef(0)
 
@@ -162,9 +163,12 @@ export default function AdminOrders({
     }
   }, [load])
 
-  async function checkPayment(order: Order) {
-    setChecking(order.id)
-    setNotice('')
+    async function checkPayment(order: Order) {
+        if (checking) return
+
+        setChecking(order.id)
+        setNoticeOrderId(order.id)
+        setNotice('Checking payment…')
 
     try {
       const {
@@ -255,7 +259,6 @@ export default function AdminOrders({
         </p>
       )}
 
-      {notice && <p role="status">{notice}</p>}
 
       {!error && !loading && !orders.length && (
         <p>No orders match this filter yet.</p>
@@ -404,6 +407,21 @@ export default function AdminOrders({
                   ? 'Checking payment…'
                   : 'Check payment status'}
               </button>
+            )}
+
+            {noticeOrderId === order.id && notice && (
+              <p
+                role="status"
+                aria-live="polite"
+                style={{
+                  marginTop: '12px',
+                  padding: '12px 16px',
+                  background: '#f2efe6',
+                  borderRadius: '8px',
+                }}
+              >
+                {notice}
+              </p>
             )}
           </details>
         </article>

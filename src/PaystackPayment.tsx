@@ -157,7 +157,7 @@ export default function PaystackPayment(props: Props) {
 
   return (
     <div className="paystack-actions">
-      <p className="payment-demo">
+      <p className="payment-info">
         CHECKOUT
       </p>
 

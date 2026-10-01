@@ -355,7 +355,7 @@ export default function AdminOverview({
 
         <span className="overview">
           <span aria-hidden="true" />
-          Demo data
+          Data
         </span>
 
         <div className="overview-toolbar-actions">
@@ -866,7 +866,6 @@ export default function AdminOverview({
           </div>
 
           <p className="overview-footnote">
-            Test transactions only—not real revenue.
             Visitor analytics, fulfilment tracking
             and chargebacks are not connected.
           </p>

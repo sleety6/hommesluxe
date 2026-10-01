@@ -657,7 +657,7 @@
   }
 }
 
-/* Paystack demo checkout */
+/* Paystack checkout */
 
 .paystack-actions {
   margin-top: 24px;
@@ -665,7 +665,7 @@
   border-top: 1px solid #ccc4b4;
 }
 
-.paystack-actions .payment-demo {
+.paystack-actions .payment-info {
   padding: 12px 14px;
   border: 1px solid #dac897;
   border-radius: 7px;

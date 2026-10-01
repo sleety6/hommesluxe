@@ -72,7 +72,7 @@
   margin-left: auto;
 }
 
-.overview-demo {
+.overview-info {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -84,7 +84,7 @@
   font-size: 12px;
 }
 
-.overview-demo > span {
+.overview-info > span {
   width: 7px;
   height: 7px;
   border-radius: 50%;
