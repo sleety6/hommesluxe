@@ -54,6 +54,20 @@ export default function App() {
     return pages.includes(hash) ? hash : 'home'
   })
   const [menuOpen, setMenuOpen] = useState(false)
+  const [headerScrolled, setHeaderScrolled] = useState(false)
+
+  useEffect(() => {
+    const updateHeader = () => {
+      setHeaderScrolled(window.scrollY > 28)
+    }
+
+    updateHeader()
+    window.addEventListener('scroll', updateHeader, { passive: true })
+
+    return () => {
+      window.removeEventListener('scroll', updateHeader)
+    }
+  }, [])
   const [filter, setFilter] = useState('All')
   const [selected, setSelected] = useState<Product | null>(null)
 
@@ -86,8 +100,29 @@ export default function App() {
   return <>
     <a className="skip-link" href="#main">Skip to content</a>
     <div className="announcement">A NEW EXPRESSION OF OCCASIONWEAR <span>✦</span> ACCRA, GHANA</div>
+    <div
+      className={`navigation-shell${headerScrolled ? ' is-scrolled' : ''}`}
+    >
     <header className="site-header">
-      <a className="wordmark" href="#home" aria-label="HOMMESLUXE home">HOMMES<span>LUXE</span><small>ACCRA · GHANA</small></a>
+      <a
+        className="wordmark"
+        href="#home"
+        aria-label="HOMMESLUXE home"
+        onClick={() => {
+          setMenuOpen(false)
+
+          if (page === 'home') {
+            window.scrollTo({
+              top: 0,
+              behavior: window.matchMedia(
+                '(prefers-reduced-motion: reduce)'
+              ).matches
+                ? 'auto'
+                : 'smooth',
+            })
+          }
+        }}
+      >HOMMES<span>LUXE</span><small>ACCRA · GHANA</small></a>
       <nav className="desktop-nav" aria-label="Main navigation">{nav.map(item => <a key={item.page} className={page === item.page ? 'active' : ''} href={`#${item.page}`}>{item.label}</a>)}</nav>
       <button
         className="header-cta bag-header"
@@ -99,6 +134,7 @@ export default function App() {
       <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>{menuOpen ? <X /> : <Menu />}</button>
     </header>
     {menuOpen && <nav className="mobile-nav" aria-label="Mobile navigation">{nav.map(item => <a key={item.page} href={`#${item.page}`} onClick={() => setMenuOpen(false)}>{item.label}<ArrowUpRight size={18} /></a>)}</nav>}
+    </div>
 
     <main id="main">
       <PaymentStatus onPaid={bag.clearAfterPayment} />
