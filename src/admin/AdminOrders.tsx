@@ -108,7 +108,15 @@ export default function AdminOrders({
         .from('demo_orders')
         .select('*', { count: 'exact' })
 
-      if (filter !== 'all') {
+      if (filter === 'sewing_done') {
+        query = query
+          .eq('payment_status', 'paid')
+          .not('sewing_completed_at', 'is', null)
+      } else if (filter === 'sewing_pending') {
+        query = query
+          .eq('payment_status', 'paid')
+          .is('sewing_completed_at', null)
+      } else if (filter !== 'all') {
         query = query.eq('payment_status', filter)
       }
 
@@ -274,7 +282,7 @@ export default function AdminOrders({
 
       <div className="orders-toolbar">
         <label>
-          Payment status
+          Filter orders
           <select
             value={filter}
             onChange={(event) => {
@@ -285,9 +293,15 @@ export default function AdminOrders({
           >
             <option value="all">All orders</option>
             <option value="paid">Paid</option>
-            <option value="pending">Pending</option>
-            <option value="failed">Failed</option>
+            <option value="pending">Pending payment</option>
+            <option value="failed">Failed payment</option>
             <option value="cancelled">Cancelled</option>
+            <option value="sewing_pending">
+              Awaiting sewing completion
+            </option>
+            <option value="sewing_done">
+              Sewing completed
+            </option>
           </select>
         </label>
 
