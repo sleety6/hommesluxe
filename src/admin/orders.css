@@ -246,3 +246,129 @@
     flex: 1;
   }
 }
+
+.sewing-panel {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #e1d9c8;
+  border-radius: 14px;
+  background: #f7f3e9;
+  transition: background-color 250ms ease, border-color 250ms ease;
+}
+
+.sewing-panel.is-complete {
+  background: #eef5ec;
+  border-color: #cbdcc7;
+}
+
+.sewing-panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.sewing-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.sewing-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #eae0c9;
+  color: #806331;
+  font-size: 23px;
+}
+
+.is-complete .sewing-icon {
+  background: #d9e9d3;
+  color: #356444;
+}
+
+.sewing-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #79715f;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.sewing-summary strong {
+  display: block;
+  font-size: 15px;
+  color: #30372c;
+}
+
+.sewing-summary p {
+  margin: 7px 0 0;
+  color: #707365;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.sewing-panel .sewing-action {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 12px 20px;
+  border: 1px solid #252c21;
+  border-radius: 9px;
+  background: #252c21;
+  color: #fff;
+  font-size: 12px;
+  transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.sewing-panel.is-complete .sewing-action {
+  background: transparent;
+  color: #356444;
+  border-color: #b9cfb4;
+}
+
+.sewing-action:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.sewing-action:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.sewing-panel .sewing-feedback {
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: #356444;
+}
+
+.sewing-panel .sewing-feedback.is-error {
+  color: #a0352c;
+}
+
+@media (max-width: 600px) {
+  .sewing-panel-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .sewing-panel .sewing-action {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sewing-panel,
+  .sewing-panel .sewing-action {
+    transition: none;
+  }
+
+  .sewing-action:hover:not(:disabled) {
+    transform: none;
+  }
+}

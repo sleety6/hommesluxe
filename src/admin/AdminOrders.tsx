@@ -29,6 +29,7 @@ type Order = {
   payment_status: string
   created_at: string
   paid_at: string | null
+  sewing_completed_at: string | null
   items: {
     product_id: number
     name: string
@@ -73,6 +74,13 @@ export default function AdminOrders({
   const [noticeOrderId, setNoticeOrderId] = useState('')
 
   const requestId = useRef(0)
+  const sewingLock = useRef(false)
+  const [savingSewing, setSavingSewing] = useState('')
+  const [sewingFeedback, setSewingFeedback] = useState<{
+    orderId: string
+    message: string
+    error: boolean
+  } | null>(null)
 
   const load = useCallback(async () => {
     const current = ++requestId.current
@@ -163,6 +171,50 @@ export default function AdminOrders({
     }
   }, [load])
 
+    async function updateSewing(order: Order) {
+    if (sewingLock.current) return
+
+    sewingLock.current = true
+    setSavingSewing(order.id)
+    setSewingFeedback(null)
+
+    const markDone = !order.sewing_completed_at
+
+    try {
+      const { error: saveError } = await supabase.rpc(
+        'set_order_sewing_done',
+        {
+          p_order_id: order.id,
+          p_done: markDone,
+        }
+      )
+
+      if (saveError) throw saveError
+
+      // Refresh from the database after saving.
+      await load()
+
+      setSewingFeedback({
+        orderId: order.id,
+        message: markDone
+          ? 'Saved. Sewing is marked as completed.'
+          : 'Saved. The order is awaiting completion again.',
+        error: false,
+      })
+    } catch (failure) {
+      setSewingFeedback({
+        orderId: order.id,
+        message:
+          failure instanceof Error
+            ? failure.message
+            : 'Could not save sewing status. Please try again.',
+        error: true,
+      })
+    } finally {
+      sewingLock.current = false
+      setSavingSewing('')
+    }
+  }
     async function checkPayment(order: Order) {
         if (checking) return
 
@@ -292,6 +344,72 @@ export default function AdminOrders({
           <p className="order-reference">
             {order.payment_reference}
           </p>
+
+            {order.payment_status === 'paid' && (
+            <section
+              className={`sewing-panel${
+                order.sewing_completed_at ? ' is-complete' : ''
+              }`}
+              aria-label="Sewing status"
+            >
+              <div className="sewing-panel-row">
+                <div className="sewing-summary">
+                  <span className="sewing-icon" aria-hidden="true">
+                    {order.sewing_completed_at ? '✓' : '◷'}
+                  </span>
+
+                  <div>
+                    <span className="sewing-label">
+                      SEWING STATUS
+                    </span>
+
+                    <strong>
+                      {order.sewing_completed_at
+                        ? 'Sewing completed'
+                        : 'Awaiting completion'}
+                    </strong>
+
+                    <p>
+                      {order.sewing_completed_at
+                        ? `Completed ${new Date(
+                            order.sewing_completed_at
+                          ).toLocaleString()}`
+                        : 'Mark as done when all outfits in this order are finished.'}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="sewing-action"
+                  disabled={Boolean(savingSewing)}
+                  onClick={() => void updateSewing(order)}
+                  aria-label={
+                    order.sewing_completed_at
+                      ? `Undo sewing completion for ${order.customer_name}`
+                      : `Mark sewing as done for ${order.customer_name}`
+                  }
+                >
+                  {savingSewing === order.id
+                    ? 'Saving…'
+                    : order.sewing_completed_at
+                      ? 'Undo'
+                      : 'Mark as done'}
+                </button>
+              </div>
+
+              {sewingFeedback?.orderId === order.id && (
+                <p
+                  className={`sewing-feedback${
+                    sewingFeedback.error ? ' is-error' : ''
+                  }`}
+                  role={sewingFeedback.error ? 'alert' : 'status'}
+                >
+                  {sewingFeedback.message}
+                </p>
+              )}
+            </section>
+          )}
 
           <details>
             <summary>
