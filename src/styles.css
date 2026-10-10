@@ -90,3 +90,16 @@ html {
     animation: none;
   }
 }
+
+.footer .footer-logo {
+  display: inline-block;
+  width: fit-content;
+  white-space: nowrap;
+}
+
+.footer .footer-logo small {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
+}
