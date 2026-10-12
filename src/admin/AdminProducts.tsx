@@ -23,6 +23,7 @@ export type AdminProduct = {
   colours: string
   lead_time: string
   image_url: string
+  image_urls?: string[]
   image_position: string
   is_available: boolean
   is_featured: boolean

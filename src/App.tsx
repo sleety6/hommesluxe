@@ -5,6 +5,7 @@ import { useProducts } from './hooks/useProducts'
 import AdminPage from './admin/AdminPage'
 import Shop, { useBag } from './Shop'
 import { PaymentStatus } from './PaystackPayment'
+import ProductGallery from './ProductGallery'
 
 type Page =
   | 'home'
@@ -206,7 +207,7 @@ export default function App() {
     </a>
     <footer className="footer"><div className="footer-top"><div><a className="wordmark footer-logo" href="#home">HOMMES<span>LUXE</span><small>ACCRA · GHANA</small></a><p>For every remarkable moment.</p></div><nav aria-label="Footer navigation">{nav.map(item => <a href={`#${item.page}`} key={item.page}>{item.label}</a>)}</nav><div><p>Stay connected</p><a href="mailto:hommesluxe@gmail.com" aria-label="Email HOMMESLUXE"><Mail size={20} /></a><a href="https://www.instagram.com/hommesluxe/" target="_blank" rel="noreferrer" aria-label="HOMMESLUXE on Instagram"><Instagram size={20} /></a><a href="https://wa.me/message/M3DWAXRFX2Q6K1" target="_blank" rel="noreferrer" aria-label="Chat with HOMMESLUXE on WhatsApp"><MessageCircle size={20} /></a></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} HOMMESLUXE. All rights reserved.</span><span>ORGLE ROAD · ACCRA</span><a href="#main">BACK TO TOP ↑</a></div></footer>
 
-    {selected && <div className="modal-backdrop" onMouseDown={() => setSelected(null)}><div className="product-modal" role="dialog" aria-modal="true" aria-label={selected.name} onMouseDown={event => event.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="Close product details"><X /></button><ProductImage product={selected} /><div className="modal-copy"><p className="eyebrow">{selected.category} / {selected.id}</p><h2>{selected.name}</h2><p className="modal-note">{selected.note}</p><p>{selected.description}</p><div className="product-details">
+    {selected && <div className="modal-backdrop" onMouseDown={() => setSelected(null)}><div className="product-modal" role="dialog" aria-modal="true" aria-label={selected.name} onMouseDown={event => event.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="Close product details"><X /></button><ProductGallery key={selected.id} product={selected} /><div className="modal-copy"><p className="eyebrow">{selected.category} / {selected.id}</p><h2>{selected.name}</h2><p className="modal-note">{selected.note}</p><p>{selected.description}</p><div className="product-details">
   <div>
     <span>Price</span>
     <strong>{selected.price}</strong>

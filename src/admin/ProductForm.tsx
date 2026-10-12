@@ -71,7 +71,16 @@ export default function ProductForm({
     product?.image_position ?? '50% 50%'
   )
 
-  const [image, setImage] = useState<File | null>(null)
+  const [savedImages, setSavedImages] = useState<string[]>(
+    () =>
+      product?.image_urls?.length
+        ? [...product.image_urls]
+        : product?.image_url
+          ? [product.image_url]
+          : []
+  )
+
+  const [imageFiles, setImageFiles] = useState<File[]>([])
 
   const [available, setAvailable] = useState(
     product?.is_available ?? true
@@ -81,96 +90,115 @@ export default function ProductForm({
     )
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
-  const imagePreview = useMemo(() => {
-    if (image) {
-        return URL.createObjectURL(image)
-    }
+    const imagePreviews = useMemo(
+    () => imageFiles.map((file) => URL.createObjectURL(file)),
+    [imageFiles]
+  )
 
-    return product?.image_url ?? ''
-    }, [image, product?.image_url])
-
-    useEffect(() => {
+  useEffect(() => {
     return () => {
-        if (imagePreview.startsWith('blob:')) {
-        URL.revokeObjectURL(imagePreview)
-        }
+      imagePreviews.forEach((url) => URL.revokeObjectURL(url))
     }
-    }, [imagePreview])
-  async function uploadImage() {
-    if (!image) {
-      return {
-        publicUrl: product?.image_url ?? '',
-        uploadedPath: '',
-      }
-    }
+  }, [imagePreviews])
 
-    if (image.size > 5 * 1024 * 1024) {
-      throw new Error(
-        'The image must be smaller than 5 MB.'
-      )
+  function addImages(files: File[]) {
+    if (!files.length) return
+
+    if (savedImages.length + imageFiles.length + files.length > 8) {
+      setError('You can add up to 8 images per product.')
+      return
     }
 
-    const safeName = image.name
-      .toLowerCase()
-      .replace(/[^a-z0-9.]+/g, '-')
+    const invalid = files.find(
+      (file) =>
+        !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
+        file.size > 5 * 1024 * 1024
+    )
 
-    const uploadedPath =
-      `products/${Date.now()}-${safeName}`
+    if (invalid) {
+      setError('Use JPG, PNG or WebP images, each no larger than 5 MB.')
+      return
+    }
 
-    const { error: uploadError } =
-      await supabase.storage
+    setError('')
+    setImageFiles((current) => [...current, ...files])
+  }
+
+  async function uploadImages(uploadedPaths: string[]) {
+    const urls = [...savedImages]
+
+    for (const file of imageFiles) {
+      const extension =
+        file.type === 'image/png'
+          ? 'png'
+          : file.type === 'image/webp'
+            ? 'webp'
+            : 'jpg'
+
+      const path = `products/${crypto.randomUUID()}.${extension}`
+
+      const { error: uploadError } = await supabase.storage
         .from('product-images')
-        .upload(uploadedPath, image, {
+        .upload(path, file, {
           cacheControl: '3600',
           upsert: false,
         })
 
-    if (uploadError) {
-      throw uploadError
+      if (uploadError) throw uploadError
+
+      uploadedPaths.push(path)
+
+      const { data } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(path)
+
+      urls.push(data.publicUrl)
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(uploadedPath)
-
-    return {
-      publicUrl,
-      uploadedPath,
-    }
+    return urls
   }
 
-  async function handleSubmit(
+    async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
     event.preventDefault()
+    if (saving) return
+
     setError('')
 
-    if (!editing && !image) {
-      setError('Please select a product image.')
+    const imageCount = savedImages.length + imageFiles.length
+
+    if (imageCount < 1 || imageCount > 8) {
+      setError('Please add between 1 and 8 product images.')
+      return
+    }
+
+    const numericPrice = Number(price)
+
+    if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+      setError('Enter a price greater than zero.')
       return
     }
 
     setSaving(true)
 
-    let uploadedPath = ''
+    const uploadedPaths: string[] = []
+    let saved = false
 
     try {
-      const uploadedImage = await uploadImage()
-
-      uploadedPath = uploadedImage.uploadedPath
+      const urls = await uploadImages(uploadedPaths)
 
       const productDetails = {
         name: name.trim(),
         category,
         note: note.trim(),
         description: description.trim(),
-        price: Number(price),
+        price: numericPrice,
         fit: fit.trim(),
         colours: colours.trim(),
         lead_time: leadTime.trim(),
-        image_url: uploadedImage.publicUrl,
+        image_url: urls[0],
+        image_urls: urls,
         image_position: imagePosition.trim(),
         is_available: available,
         is_featured: featured,
@@ -178,64 +206,55 @@ export default function ProductForm({
       }
 
       if (product) {
-        const { error: updateError } =
-          await supabase
-            .from('products')
-            .update(productDetails)
-            .eq('id', product.id)
+        const { data, error: updateError } = await supabase
+          .from('products')
+          .update(productDetails)
+          .eq('id', product.id)
+          .select('id')
+          .single()
 
-        if (updateError) {
-          throw updateError
-        }
+        if (updateError) throw updateError
+        if (!data) throw new Error('The product could not be updated.')
       } else {
-        const { data: finalProduct } =
-          await supabase
-            .from('products')
-            .select('sort_order')
-            .order('sort_order', {
-              ascending: false,
-            })
-            .limit(1)
-            .maybeSingle()
+        const { data: finalProduct, error: sortError } = await supabase
+          .from('products')
+          .select('sort_order')
+          .order('sort_order', { ascending: false })
+          .limit(1)
+          .maybeSingle()
 
-        const nextOrder =
-          (finalProduct?.sort_order ?? 0) + 1
+        if (sortError) throw sortError
 
-        const { error: insertError } =
-          await supabase
-            .from('products')
-            .insert({
-              ...productDetails,
-              sort_order: nextOrder,
-            })
+        const { error: insertError } = await supabase
+          .from('products')
+          .insert({
+            ...productDetails,
+            sort_order: (finalProduct?.sort_order ?? 0) + 1,
+          })
 
-        if (insertError) {
-          throw insertError
-        }
+        if (insertError) throw insertError
       }
 
-      onSaved()
-    } catch (saveError) {
-      if (uploadedPath) {
-        await supabase.storage
-          .from('product-images')
-          .remove([uploadedPath])
-      }
-
+      saved = true
+    } catch (failure) {
       setError(
-        saveError instanceof Error
-          ? saveError.message
-          : 'The product could not be saved.'
+        failure instanceof Error
+          ? failure.message
+          : 'The product could not be saved. Please try again.'
       )
-
+    } finally {
       setSaving(false)
     }
+
+    if (saved) onSaved()
   }
 
   return (
     <div
       className="admin-form-backdrop"
-      onMouseDown={onClose}
+      onMouseDown={() => {
+        if (!saving) onClose()
+      }}
     >
       <section
         className="admin-product-form-panel"
@@ -257,7 +276,9 @@ export default function ProductForm({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => {
+              if (!saving) onClose()
+            }}
             aria-label="Close product form"
           >
             <X />
@@ -422,63 +443,88 @@ export default function ProductForm({
             />
           </label>
 
-          <div className="admin-custom-field">
+          <div className="admin-custom-field admin-field-wide">
             <span className="admin-field-label">
-              Product image
+              Product images
             </span>
 
-            <label
-              className={
-                image
-                  ? 'admin-image-upload has-file'
-                  : 'admin-image-upload'
-              }
-              htmlFor="product-image"
-            >
-              {imagePreview ? (
-                <img
-                    className="admin-image-preview"
-                    src={imagePreview}
-                    alt="Product preview"
-                    style={{
-                    objectPosition: imagePosition,
-                    }}
-                />
-                ) : (
-                <Upload size={20} />
-                )}
+            <p className="product-images-help">
+              Add up to 8 images. The first image is the cover.
+              JPG, PNG or WebP · Maximum 5 MB each.
+            </p>
 
-              <span>
-                <strong>
-                  {image
-                    ? image.name
-                    : editing
-                      ? 'Current product image'
-                      : 'Upload image'}
-                </strong>
+            <div className="product-image-grid">
+              {savedImages.map((url, index) => (
+                <div className="product-image-tile" key={`${url}-${index}`}>
+                  <img
+                    src={url}
+                    alt={`Product image ${index + 1}`}
+                    style={{ objectPosition: imagePosition }}
+                  />
 
-                <small>
-                  {image
-                    ? 'Click to choose a different image'
-                    : editing
-                      ? 'Upload only if you want to replace it'
-                      : 'JPG, PNG or WebP · Maximum 5 MB'}
-                </small>
-              </span>
+                  {index === 0 && (
+                    <span className="product-cover-badge">Cover</span>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={saving}
+                    aria-label={`Remove image ${index + 1}`}
+                    onClick={() =>
+                      setSavedImages((current) =>
+                        current.filter((_, position) => position !== index)
+                      )
+                    }
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+              ))}
+
+              {imagePreviews.map((url, index) => (
+                <div className="product-image-tile" key={url}>
+                  <img
+                    src={url}
+                    alt={`New image ${index + 1}`}
+                    style={{ objectPosition: imagePosition }}
+                  />
+
+                  {savedImages.length === 0 && index === 0 && (
+                    <span className="product-cover-badge">Cover</span>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={saving}
+                    aria-label={`Remove new image ${index + 1}`}
+                    onClick={() =>
+                      setImageFiles((current) =>
+                        current.filter((_, position) => position !== index)
+                      )
+                    }
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <label className="product-images-picker">
+              <Upload size={18} />
+              <span>Add images</span>
+              <input
+                type="file"
+                multiple
+                accept="image/jpeg,image/png,image/webp"
+                disabled={
+                  saving || savedImages.length + imageFiles.length >= 8
+                }
+                onChange={(event) => {
+                  addImages(Array.from(event.target.files || []))
+                  event.target.value = ''
+                }}
+              />
             </label>
-
-            <input
-              className="admin-hidden-file-input"
-              id="product-image"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(event) =>
-                setImage(
-                  event.target.files?.[0] ?? null
-                )
-              }
-              required={!editing}
-            />
           </div>
 
           <label className="admin-checkbox admin-field-wide">
@@ -518,7 +564,9 @@ export default function ProductForm({
             <button
               type="button"
               className="admin-cancel-button"
-              onClick={onClose}
+              onClick={() => {
+              if (!saving) onClose()
+            }}
             >
               Cancel
             </button>

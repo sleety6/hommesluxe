@@ -16,6 +16,7 @@ type DatabaseProduct = {
   colours: string
   lead_time: string
   image_url: string
+  image_urls: string[]
   image_position: string
   sort_order: number
   is_featured: boolean
@@ -61,6 +62,7 @@ export function useProducts() {
             colours,
             lead_time,
             image_url,
+            image_urls,
             image_position,
             is_featured,
             sort_order
@@ -86,6 +88,9 @@ export function useProducts() {
           description: product.description,
           palette: 'sand',
           image: product.image_url,
+          images: product.image_urls?.length
+            ? product.image_urls
+            : [product.image_url].filter(Boolean),
           position: product.image_position,
           price: formatPrice(Number(product.price)),
           startingPrice: Number(product.price),

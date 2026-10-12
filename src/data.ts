@@ -6,6 +6,7 @@ export type Product = {
   description: string
   palette: string
   image: string
+  images?: string[]
   position?: string
   startingPrice?: number
   price: string
